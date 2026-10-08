@@ -116,6 +116,20 @@ function formatScore(n) {
   return String(n);
 }
 
+/* 결과 목록에 붙는 표시. 힌트를 쓰고 맞히면 배점을 함께 알려 준다. */
+function resultLabel(result) {
+  if (result.timedOut) {
+    return "시간 초과";
+  }
+  if (!result.correct) {
+    return "오답";
+  }
+  if (result.usedHint) {
+    return "정답 (힌트 " + formatScore(result.score) + "점)";
+  }
+  return "정답";
+}
+
 /* 문항 → 지울 보기 인덱스 2개. 정답은 절대 포함하지 않는다. */
 function pickHintChoices(question) {
   var wrong = [];
@@ -228,6 +242,7 @@ function validateQuestions(data) {
 
 var round = null;
 var selectedMode = "practice";
+var selectedCategoryId = null;
 var timerId = null;
 var deadline = 0;
 
@@ -344,18 +359,11 @@ function showScreen(id) {
    5. DOM 렌더링과 이벤트 연결
    ==================================================================== */
 
-/* 시작 화면: 고른 모드와 순위표 기록 여부를 알린다. */
-function renderStart() {
-  var mode = MODES[selectedMode];
-  var note = document.getElementById("start-note");
-
-  if (mode.leaderboard) {
-    note.textContent = "";
-    note.classList.add("hidden");
-  } else {
-    note.textContent = mode.name + " 모드 · 순위표에 기록되지 않음";
-    note.classList.remove("hidden");
-  }
+/* 모드 선택 화면: 고른 카테고리를 제목에 보인다.
+   순위표 미기록 안내는 모드 버튼 안의 배지가 맡는다. */
+function renderMode() {
+  document.getElementById("mode-title").textContent =
+    getCategory(selectedCategoryId).name + " · 모드를 고르세요";
 }
 
 function renderQuestion() {
@@ -389,6 +397,7 @@ function renderQuestion() {
   if (MODES[round.mode].hint) {
     hintButton.classList.remove("hidden");
     hintButton.disabled = false;
+    hintButton.textContent = "힌트 (오답 2개 지우기)";
   } else {
     hintButton.classList.add("hidden");
   }
@@ -434,7 +443,10 @@ function applyHint() {
   }
 
   round.usedHint = true;
-  document.getElementById("btn-hint").disabled = true;
+
+  var hintButton = document.getElementById("btn-hint");
+  hintButton.textContent = "힌트 사용함";
+  hintButton.disabled = true;
 }
 
 function renderStatusScore() {
@@ -532,7 +544,7 @@ function renderResult() {
 
     var mark = document.createElement("span");
     mark.className = "mark " + (correct ? "is-correct" : "is-wrong");
-    mark.textContent = correct ? "맞힘" : "틀림";
+    mark.textContent = resultLabel(round.results[i]);
     detail.appendChild(mark);
 
     if (!correct) {
@@ -563,12 +575,11 @@ function bindEvents() {
       return;
     }
     selectedMode = button.dataset.mode;
-    renderStart();
-    showScreen("screen-start");
+    startRound(selectedMode, selectedCategoryId);
   });
 
-  document.getElementById("btn-start-back").addEventListener("click", function () {
-    showScreen("screen-mode");
+  document.getElementById("btn-mode-back").addEventListener("click", function () {
+    showScreen("screen-start");
   });
 
   document.getElementById("btn-hint").addEventListener("click", applyHint);
@@ -580,7 +591,9 @@ function bindEvents() {
     if (!button) {
       return;
     }
-    startRound(selectedMode, button.dataset.categoryId);
+    selectedCategoryId = button.dataset.categoryId;
+    renderMode();
+    showScreen("screen-mode");
   });
 
   document.getElementById("choice-list").addEventListener("click", function (event) {
@@ -602,7 +615,7 @@ function bindEvents() {
 
   document.getElementById("btn-to-start").addEventListener("click", function () {
     stopTimer();
-    showScreen("screen-mode");
+    showScreen("screen-start");
   });
 }
 
@@ -724,8 +737,7 @@ function selfTest() {
 }
 
 bindEvents();
-renderStart();
-showScreen("screen-mode");
+showScreen("screen-start");
 
 if (location.search.indexOf("test") !== -1) {
   selfTest();

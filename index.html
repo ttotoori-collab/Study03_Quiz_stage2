@@ -13,10 +13,21 @@
 
   <p class="student">학번 2601926 이름 김세란</p>
 
-  <!-- 화면: 모드 선택 -->
-  <section id="screen-mode" class="screen">
+
+  <!-- 화면: 시작(카테고리 선택) -->
+  <section id="screen-start" class="screen">
     <h1>상식 퀴즈</h1>
-    <p class="lead">모드를 고르세요. 한 판은 10문제입니다.</p>
+    <p class="lead">카테고리를 고르세요. 한 판은 10문제입니다.</p>
+    <div class="button-column">
+      <button type="button" data-category-id="korean-history">한국사</button>
+      <button type="button" data-category-id="world-geography">세계지리</button>
+      <button type="button" data-category-id="science">과학</button>
+      <button type="button" data-category-id="arts-culture">예술과 문화</button>
+    </div>
+  </section>
+  <!-- 화면: 모드 선택 -->
+  <section id="screen-mode" class="screen hidden">
+    <h2 id="mode-title"></h2>
     <div class="button-column">
       <button type="button" class="mode-button" data-mode="practice">
         <strong>연습</strong>
@@ -32,21 +43,7 @@
         <span>문항마다 힌트 1번, 힌트를 쓰고 맞히면 0.5점</span>
       </button>
     </div>
-  </section>
-
-  <!-- 화면: 시작(카테고리 선택) -->
-  <section id="screen-start" class="screen hidden">
-    <h1>상식 퀴즈</h1>
-    <p class="lead">한 판은 10문제입니다.</p>
-    <p id="start-note" class="note hidden"></p>
-    <h2>카테고리를 고르세요</h2>
-    <div class="button-column">
-      <button type="button" data-category-id="korean-history">한국사</button>
-      <button type="button" data-category-id="world-geography">세계지리</button>
-      <button type="button" data-category-id="science">과학</button>
-      <button type="button" data-category-id="arts-culture">예술과 문화</button>
-    </div>
-    <button id="btn-start-back" type="button">뒤로</button>
+    <button id="btn-mode-back" type="button">뒤로</button>
   </section>
 
   <!-- 화면: 퀴즈 -->
